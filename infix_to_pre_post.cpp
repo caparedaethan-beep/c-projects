@@ -1,12 +1,12 @@
 #include <iostream>
 using namespace std;
 
+
 string postfix(char arr[], int total){
-    string postfix=" ";
+    string postfix="";
     for (int i = 0; i < total; i++){
         if (arr[i] == 'A' || arr[i]== 'a'){
         postfix += arr[i];
-
         }
     }
     
@@ -31,11 +31,8 @@ int main(){
         }
     }
   
-    for (int i = 0; i < total; i++){
-        cout << arr[i];
-    }
-
-    cout << postfix(arr, total);
+    cout << "RESULTS" << "\n";
+    cout << "POSTFIX NOTATION: "<< postfix(arr, total);
     
     return 0;
 

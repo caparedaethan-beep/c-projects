@@ -46,6 +46,19 @@ std::string postfix(char arr[], int total){
         if (isOperand(arr[i])){
             postfix.push_back(arr[i]);
         }
+        else if (arr[i] == '('){
+            operatorStack.push(arr[i]);
+        }
+        else if (arr[i] == ')'){
+            while (!operatorStack.empty()){
+                if (operatorStack.top() == '(')
+                    operatorStack.pop();
+                else{
+                postfix.push_back(operatorStack.top());
+                operatorStack.pop();
+                }
+            }
+        }
         else if (isOperator(arr[i])){
             while(!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])){
                 postfix.push_back(operatorStack.top());
@@ -53,6 +66,7 @@ std::string postfix(char arr[], int total){
             }
             operatorStack.push(arr[i]);
         }
+        
     }
     while (!operatorStack.empty()){
         postfix.push_back(operatorStack.top());
@@ -61,6 +75,8 @@ std::string postfix(char arr[], int total){
 
     return postfix;
 }
+
+
     
     
 
@@ -83,7 +99,7 @@ int main(){
         }
     }
 
-    std::cout<<postfix(arr, total);
+    std::cout<< "Postfix Notation: " <<postfix(arr, total);
 
 
     return 0;

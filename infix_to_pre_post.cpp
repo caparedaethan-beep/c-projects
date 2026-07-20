@@ -2,6 +2,7 @@
 #include <cctype>
 #include <string>
 #include <stack>
+#include <algorithm>
 
 
 bool isOperand (char c){
@@ -32,13 +33,6 @@ int getPrecedence(char op){
     return -1;
 }
 
-// bool isRightAssociative(char op){
-//     if (op == '^') {
-//         return true;
-//     }
-//     return false;
-// }
-
 std::string postfix(char arr[], int total){
     std::stack<char> operatorStack;
     std::string postfix = "";
@@ -51,8 +45,10 @@ std::string postfix(char arr[], int total){
         }
         else if (arr[i] == ')'){
             while (!operatorStack.empty()){
-                if (operatorStack.top() == '(')
+                if (operatorStack.top() == '('){
                     operatorStack.pop();
+                    break;
+                }
                 else{
                 postfix.push_back(operatorStack.top());
                 operatorStack.pop();
@@ -66,16 +62,54 @@ std::string postfix(char arr[], int total){
             }
             operatorStack.push(arr[i]);
         }
-        
     }
     while (!operatorStack.empty()){
         postfix.push_back(operatorStack.top());
         operatorStack.pop();
     }
-
     return postfix;
 }
 
+
+
+std::string prefix(char arr[], int total){
+    std::stack<char> operatorStack;
+    std::string prefix = "";
+    std::reverse(arr, arr + total);
+    for (int i = 0; i < total; i++){
+        if(isOperand(arr[i])){
+            prefix.push_back(arr[i]);
+        }
+        else if(arr[i] == ')'){
+            operatorStack.push(arr[i]);
+        }
+        else if(arr[i] == '('){
+            while(!operatorStack.empty()){
+                if (operatorStack.top() == ')'){
+                operatorStack.pop();
+                break;
+                }
+                else{
+                prefix.push_back(operatorStack.top());
+                operatorStack.pop();
+                }
+            }
+        }
+        else if (isOperator(arr[i])){
+            while(!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])){
+                prefix.push_back(operatorStack.top());
+                operatorStack.pop();
+            }
+            operatorStack.push(arr[i]);
+        }
+    }
+    while (!operatorStack.empty()){
+        prefix.push_back(operatorStack.top());
+        operatorStack.pop();
+    }
+    std::reverse(prefix.begin(), prefix.end());
+    return prefix;
+}
 
     
     
@@ -99,10 +133,9 @@ int main(){
         }
     }
 
-    std::cout<< "Postfix Notation: " <<postfix(arr, total);
-
+  
+    std::cout << "Postfix Notation: " <<postfix(arr, total);
+    std::cout << "\nPrefix Notation: " <<prefix(arr, total);
 
     return 0;
-
-
 }

@@ -1,28 +1,80 @@
 #include <iostream>
-using namespace std;
+#include <cctype>
+#include <string>
+#include <stack>
 
 
-string postfix(char arr[], int total){
-    string postfix="";
+bool isOperand (char c){
+    if (isalnum(c)){
+        return true;
+    }
+    return false;
+}
+
+bool isOperator (char c){
+    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^'){
+        return true;
+    }
+    return false;
+}
+
+
+int getPrecedence(char op){
+    if (op == '+' || op == '-'){
+        return 1;
+    }
+    if(op == '*' || op == '/'){
+        return 2;
+    }
+    if(op == '^'){
+        return 3;
+    }
+    return -1;
+}
+
+// bool isRightAssociative(char op){
+//     if (op == '^') {
+//         return true;
+//     }
+//     return false;
+// }
+
+std::string postfix(char arr[], int total){
+    std::stack<char> operatorStack;
+    std::string postfix = "";
     for (int i = 0; i < total; i++){
-        if (arr[i] == 'A' || arr[i]== 'a'){
-        postfix += arr[i];
+        if (isOperand(arr[i])){
+            postfix.push_back(arr[i]);
+        }
+        else if (isOperator(arr[i])){
+            while(!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])){
+                postfix.push_back(operatorStack.top());
+                operatorStack.pop();
+            }
+            operatorStack.push(arr[i]);
         }
     }
-    
-   return postfix;
+    while (!operatorStack.empty()){
+        postfix.push_back(operatorStack.top());
+        operatorStack.pop();
+    }
+
+    return postfix;
 }
- 
+    
+    
+
 int main(){
 
-    string exp =" ";
+    std::string exp =" ";
     int n;
     int total = 0;
     
-    cout << "Input Infix Expression: ";
-    getline(cin, exp);
+    
+    std::cout << "Input Infix Expression: ";
+    std::getline(std::cin, exp);
 
-    char arr[total+1];
+    char arr[total+1] = {'\0'};
 
     for(int i = 0; i < exp.length(); i++){
         if (exp[i] != ' '){
@@ -30,10 +82,10 @@ int main(){
         total++;  
         }
     }
-  
-    cout << "RESULTS" << "\n";
-    cout << "POSTFIX NOTATION: "<< postfix(arr, total);
-    
+
+    std::cout<<postfix(arr, total);
+
+
     return 0;
 
 

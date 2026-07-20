@@ -36,12 +36,12 @@ int getPrecedence(char op){
     return -1;
 }
 
+
 std::string postfix(char arr[], int total) {
     std::stack<char> operatorStack;
     std::string postfix = "";
 
     for (int i = 0; i < total; i++) {
-        // Skip whitespace if present in input array
         if (arr[i] == ' ') continue; 
 
         if (isOperand(arr[i])) {
@@ -86,24 +86,22 @@ std::string postfix(char arr[], int total) {
 std::string prefix(char arr[], int total){
     std::stack<char> operatorStack;
     std::string prefix = "";
-    
-    // Reverse input array
     std::reverse(arr, arr + total);
     
     for (int i = 0; i < total; i++){
         if (isOperand(arr[i])){
             prefix.push_back(arr[i]);
         }
-        else if (arr[i] == ')'){ // After reversal, ')' acts as opening parenthesis
+        else if (arr[i] == ')'){ 
             operatorStack.push(arr[i]);
         }
-        else if (arr[i] == '('){ // After reversal, '(' acts as closing parenthesis
+        else if (arr[i] == '('){ 
             while (!operatorStack.empty() && operatorStack.top() != ')'){
                 prefix.push_back(operatorStack.top());
                 operatorStack.pop();
             }
             if (!operatorStack.empty()) {
-                operatorStack.pop(); // Pop the ')'
+                operatorStack.pop(); 
             }
         }
         else if (isOperator(arr[i])){
@@ -125,7 +123,7 @@ std::string prefix(char arr[], int total){
         operatorStack.pop();
     }
     
-    // Reverse to get final prefix expression
+
     std::reverse(prefix.begin(), prefix.end());
     return prefix;
 }

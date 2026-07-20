@@ -19,6 +19,9 @@ bool isOperator (char c){
     return false;
 }
 
+bool isRightAssociative(char op) {
+    return op == '^';
+}
 
 int getPrecedence(char op){
     if (op == '+' || op == '-'){
@@ -33,40 +36,48 @@ int getPrecedence(char op){
     return -1;
 }
 
-std::string postfix(char arr[], int total){
+std::string postfix(char arr[], int total) {
     std::stack<char> operatorStack;
     std::string postfix = "";
-    for (int i = 0; i < total; i++){
-        if (isOperand(arr[i])){
+
+    for (int i = 0; i < total; i++) {
+        // Skip whitespace if present in input array
+        if (arr[i] == ' ') continue; 
+
+        if (isOperand(arr[i])) {
             postfix.push_back(arr[i]);
         }
-        else if (arr[i] == '('){
+        else if (arr[i] == '(') {
             operatorStack.push(arr[i]);
         }
-        else if (arr[i] == ')'){
-            while (!operatorStack.empty()){
-                if (operatorStack.top() == '('){
+        else if (arr[i] == ')') {
+            while (!operatorStack.empty()) {
+                if (operatorStack.top() == '(') {
                     operatorStack.pop();
                     break;
-                }
-                else{
-                postfix.push_back(operatorStack.top());
-                operatorStack.pop();
+                } else {
+                    postfix.push_back(operatorStack.top());
+                    operatorStack.pop();
                 }
             }
         }
-        else if (isOperator(arr[i])){
-            while(!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])){
+        else if (isOperator(arr[i])) {
+            while (!operatorStack.empty() && operatorStack.top() != '(' &&
+                  ((!isRightAssociative(arr[i]) && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])) ||
+                   (isRightAssociative(arr[i]) && getPrecedence(operatorStack.top()) > getPrecedence(arr[i])))) {
+                
                 postfix.push_back(operatorStack.top());
                 operatorStack.pop();
             }
             operatorStack.push(arr[i]);
         }
     }
-    while (!operatorStack.empty()){
+
+    while (!operatorStack.empty()) {
         postfix.push_back(operatorStack.top());
         operatorStack.pop();
     }
+
     return postfix;
 }
 
@@ -75,44 +86,49 @@ std::string postfix(char arr[], int total){
 std::string prefix(char arr[], int total){
     std::stack<char> operatorStack;
     std::string prefix = "";
+    
+    // Reverse input array
     std::reverse(arr, arr + total);
+    
     for (int i = 0; i < total; i++){
-        if(isOperand(arr[i])){
+        if (isOperand(arr[i])){
             prefix.push_back(arr[i]);
         }
-        else if(arr[i] == ')'){
+        else if (arr[i] == ')'){ // After reversal, ')' acts as opening parenthesis
             operatorStack.push(arr[i]);
         }
-        else if(arr[i] == '('){
-            while(!operatorStack.empty()){
-                if (operatorStack.top() == ')'){
-                operatorStack.pop();
-                break;
-                }
-                else{
+        else if (arr[i] == '('){ // After reversal, '(' acts as closing parenthesis
+            while (!operatorStack.empty() && operatorStack.top() != ')'){
                 prefix.push_back(operatorStack.top());
                 operatorStack.pop();
-                }
+            }
+            if (!operatorStack.empty()) {
+                operatorStack.pop(); // Pop the ')'
             }
         }
         else if (isOperator(arr[i])){
-            while(!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i])){
-                prefix.push_back(operatorStack.top());
-                operatorStack.pop();
+            while (!operatorStack.empty() && operatorStack.top() != ')') {
+                if ((!isRightAssociative(arr[i]) && getPrecedence(operatorStack.top()) > getPrecedence(arr[i])) ||
+                    (isRightAssociative(arr[i]) && getPrecedence(operatorStack.top()) >= getPrecedence(arr[i]))) {
+                    prefix.push_back(operatorStack.top());
+                    operatorStack.pop();
+                } else {
+                    break;
+                }
             }
             operatorStack.push(arr[i]);
         }
     }
+    
     while (!operatorStack.empty()){
         prefix.push_back(operatorStack.top());
         operatorStack.pop();
     }
+    
+    // Reverse to get final prefix expression
     std::reverse(prefix.begin(), prefix.end());
     return prefix;
 }
-
-    
-    
 
 int main(){
 
@@ -123,7 +139,6 @@ int main(){
     
     std::cout << "Input Infix Expression: ";
     std::getline(std::cin, exp);
-
     char arr[total+1] = {'\0'};
 
     for(int i = 0; i < exp.length(); i++){
@@ -132,8 +147,6 @@ int main(){
         total++;  
         }
     }
-
-  
     std::cout << "Postfix Notation: " <<postfix(arr, total);
     std::cout << "\nPrefix Notation: " <<prefix(arr, total);
 

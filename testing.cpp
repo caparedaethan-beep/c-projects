@@ -1,66 +1,199 @@
 #include <iostream>
+#include <cctype>
 #include <string>
 #include <stack>
 #include <algorithm>
-#include <cctype>
 
-int prec(char c) {
-    switch (c) {
-        case '^': return 3;
-        case '*': case '/': return 2;
-        case '+': case '-': return 1;
-        default: return -1;
-    }
+bool isOperand(char c) {
+    return std::isalnum(static_cast<unsigned char>(c));
 }
 
-std::string toPostfix(const std::string& s) {
-    std::string res;
-    std::stack<char> st;
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
+}
 
-    for (char c : s) {
-        if (std::isalnum(c)) {
-            res += c;
-        } else if (c == '(') {
-            st.push(c);
-        } else if (c == ')') {
-            while (!st.empty() && st.top() != '(') { res += st.top(); st.pop(); }
-            if (!st.empty()) st.pop(); // Pop '('
-        } else if (prec(c) > 0) {
-            // Check operator precedence (^ is right-associative)
-            while (!st.empty() && (prec(st.top()) > prec(c) || (prec(st.top()) == prec(c) && c != '^'))) {
-                res += st.top();
-                st.pop();
+int getPrecedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
+    return -1;
+}
+
+// Validates infix expression and fills errorMsg if invalid
+bool validateInfix(const std::string& exp, std::string& errorMsg) {
+    int balance = 0;
+    bool expectOperand = true; // Expecting an operand or '('
+
+    if (exp.empty()) {
+        errorMsg = "Error: Unexpected end of expression / missing operand";
+        return false;
+    }
+
+    for (size_t i = 0; i < exp.length(); ++i) {
+        char c = exp[i];
+
+        if (c == '(') {
+            // Check for empty parentheses: ()
+            if (i + 1 < exp.length() && exp[i + 1] == ')') {
+                errorMsg = "Error: Empty parenthetical expression";
+                return false;
             }
-            st.push(c);
+            if (!expectOperand) {
+                errorMsg = "Error: Missing operator before open parenthesis";
+                return false;
+            }
+            balance++;
+        } 
+        else if (c == ')') {
+            balance--;
+            if (balance < 0) {
+                errorMsg = "Error: Unmatched close parenthesis / stack underflow";
+                return false;
+            }
+            if (expectOperand) {
+                errorMsg = "Error: Unexpected operator or empty expression inside parentheses";
+                return false;
+            }
+            expectOperand = false; 
+        } 
+        else if (isOperand(c)) {
+            if (!expectOperand) {
+                errorMsg = "Error: Missing operator between operands";
+                return false;
+            }
+            expectOperand = false;
+        } 
+        else if (isOperator(c)) {
+            if (expectOperand) {
+                errorMsg = "Error: Consecutive binary operators";
+                return false;
+            }
+            expectOperand = true;
+        } 
+        else {
+            errorMsg = std::string("Error: Invalid character '") + c + "'";
+            return false;
         }
     }
-    while (!st.empty()) { res += st.top(); st.pop(); }
-    return res;
-}
 
-std::string toPrefix(std::string s) {
-    // Reverse, swap parentheses, calculate postfix, and reverse back
-    std::reverse(s.begin(), s.end());
-    for (char& c : s) {
-        if (c == '(') c = ')';
-        else if (c == ')') c = '(';
+    if (balance > 0) {
+        errorMsg = "Error: Unmatched open parenthesis";
+        return false;
     }
 
-    std::string res = toPostfix(s);
-    std::reverse(res.begin(), res.end());
-    return res;
+    if (expectOperand) {
+        errorMsg = "Error: Unexpected end of expression / missing operand";
+        return false;
+    }
+
+    return true;
+}
+
+std::string postfix(const std::string& exp) {
+    std::stack<char> operatorStack;
+    std::string postfixStr = "";
+
+    for (char c : exp) {
+        if (isOperand(c)) {
+            postfixStr.push_back(c);
+        }
+        else if (c == '(') {
+            operatorStack.push(c);
+        }
+        else if (c == ')') {
+            while (!operatorStack.empty()) {
+                if (operatorStack.top() == '(') {
+                    operatorStack.pop();
+                    break;
+                }
+                else {
+                    postfixStr.push_back(operatorStack.top());
+                    operatorStack.pop();
+                }
+            }
+        }
+        else if (isOperator(c)) {
+            while (!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(c)) {
+                postfixStr.push_back(operatorStack.top());
+                operatorStack.pop();
+            }
+            operatorStack.push(c);
+        }
+    }
+
+    while (!operatorStack.empty()) {
+        postfixStr.push_back(operatorStack.top());
+        operatorStack.pop();
+    }
+
+    return postfixStr;
+}
+
+std::string prefix(std::string exp) {
+    std::stack<char> operatorStack;
+    std::string prefixStr = "";
+
+    std::reverse(exp.begin(), exp.end());
+
+    for (char c : exp) {
+        if (isOperand(c)) {
+            prefixStr.push_back(c);
+        }
+        else if (c == ')') {
+            operatorStack.push(c);
+        }
+        else if (c == '(') {
+            while (!operatorStack.empty()) {
+                if (operatorStack.top() == ')') {
+                    operatorStack.pop();
+                    break;
+                }
+                else {
+                    prefixStr.push_back(operatorStack.top());
+                    operatorStack.pop();
+                }
+            }
+        }
+        else if (isOperator(c)) {
+            while (!operatorStack.empty() && getPrecedence(operatorStack.top()) >= getPrecedence(c)) {
+                prefixStr.push_back(operatorStack.top());
+                operatorStack.pop();
+            }
+            operatorStack.push(c);
+        }
+    }
+
+    while (!operatorStack.empty()) {
+        prefixStr.push_back(operatorStack.top());
+        operatorStack.pop();
+    }
+
+    std::reverse(prefixStr.begin(), prefixStr.end());
+    return prefixStr;
 }
 
 int main() {
-    std::string exp;
+    std::string inputExp;
+
     std::cout << "Input Infix Expression: ";
-    std::getline(std::cin, exp);
+    std::getline(std::cin, inputExp);
 
-    // Clean spaces inline
-    exp.erase(std::remove_if(exp.begin(), exp.end(), ::isspace), exp.end());
+    // It removes the spaces
+    std::string exp = "";
+    for (char c : inputExp) {
+        if (c != ' ' && c != '\t') {
+            exp += c;
+        }
+    }
 
-    std::cout << "Postfix Notation: " << toPostfix(exp) << "\n";
-    std::cout << "Prefix Notation:  " << toPrefix(exp) << "\n";
+    std::string errorMsg;
+    if (!validateInfix(exp, errorMsg)) {
+        std::cout << errorMsg << "\n";
+    } 
+    else {
+        std::cout << "Postfix Notation: " << postfix(exp) << "\n";
+        std::cout << "Prefix Notation:  " << prefix(exp) << "\n";
+    }
 
     return 0;
 }

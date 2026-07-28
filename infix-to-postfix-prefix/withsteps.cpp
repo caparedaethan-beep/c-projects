@@ -61,7 +61,7 @@ std::string convertToPostfix(const std::string& infix) {
                 result.push_back(opStack.top());
                 opStack.pop();
             }
-            if (!opStack.empty()) opStack.pop(); // Pop '('
+            if (!opStack.empty()) opStack.pop(); 
         } 
         else if (isOperator(token)) {
             while (!opStack.empty() && opStack.top() != '(' &&
@@ -102,7 +102,7 @@ std::string convertToPrefix(std::string infix) {
 
     std::cout << "\n--- Infix to Prefix Steps (Reversed Processing) ---\n";
     std::cout << std::left << std::setw(12) << "Symbol" 
-              << std::setw(20) << "Operator Stack" 
+              << std::setw(2    0) << "Operator Stack" 
               << "Reversed Output\n";
     std::cout << std::string(50, '-') << "\n";
 

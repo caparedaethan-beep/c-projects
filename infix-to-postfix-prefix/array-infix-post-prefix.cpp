@@ -16,36 +16,45 @@ int getPrecedence(char op) {
     return -1;
 }
 
+//Standard Array Postfix
+
 std::string postfix (char expression[], int total){
     std::string postfix = ""; 
-    char temporaryStack;
-    char topStack = '\0';
-    char operatorStack[10];
+    char top = -1;
+    char operatorStack[100];
     for (int i = 0 ; i < total; i++){
         if (isalnum(expression[i])){
             postfix += expression[i];
         }
         else if (expression[i] == '('){
-            temporaryStack = expression[i];
+            top++;
+            operatorStack[top] = expression[i];
         }
-        else if (expression[i] == ')' && temporaryStack == '('){
-            temporaryStack = '\0';
-            for (int y = 0; y < i+1 ; y++){
-                postfix += operatorStack;
+        else if (expression[i] == ')'){
+            while (top > -1 && operatorStack[top] != '('){
+                postfix += operatorStack[top];
+                top--;
+            }
+            if (top > -1) {
+                top--;
             }
         }
         else if (isOperator(expression[i])){
-            while (temporaryStack != '(' &&
-                  ((!isRightAssociative(expression[i]) && getPrecedence(topStack) >= getPrecedence(expression[i])) ||
-                   (isRightAssociative(expression[i]) && getPrecedence(topStack) > getPrecedence(expression[i])))) {
-                        if (topStack == '\0' || topStack < expression[i]){
-                            topStack = expression[i];
-                        }
-                    postfix += topStack;
+            while (top > -1 && operatorStack[top] != '(' &&
+            ((!isRightAssociative(expression[i]) && getPrecedence(operatorStack[top]) >= getPrecedence(expression[i])) ||
+            (isRightAssociative(expression[i]) && getPrecedence(operatorStack[top]) > getPrecedence(expression[i])))){
+                postfix += operatorStack[top];
+                top--;
+            }
+            top++;
+            operatorStack[top] = expression[i];
         }
-        
     }
-
+    while (top > -1){
+        postfix += operatorStack[top];
+        top --;
+    }
+    return postfix;
 }
 
 int main(){
@@ -67,6 +76,7 @@ int main(){
         }
     }
 
+    std::cout << postfix(expression, total);
 
     // if (n == 1){
     // // std:: string prefix =

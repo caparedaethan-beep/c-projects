@@ -102,7 +102,7 @@ std::string convertToPrefix(std::string infix) {
 
     std::cout << "\n--- Infix to Prefix Steps (Reversed Processing) ---\n";
     std::cout << std::left << std::setw(12) << "Symbol" 
-              << std::setw(2    0) << "Operator Stack" 
+              << std::setw(20) << "Operator Stack" 
               << "Reversed Output\n";
     std::cout << std::string(50, '-') << "\n";
 

@@ -2,7 +2,12 @@
 #include <string>
 #include <cctype>
 #include <algorithm>
+#include <stack>
+#include <iomanip>
 
+bool isOperand(char c){
+    return std::isalnum(c);
+}
 bool isOperator(char c) {
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
 }
@@ -17,6 +22,130 @@ int getPrecedence(char op) {
     return -1;
 }
 
+std::string getStackString(std::stack<char> s) {
+    std::string str = "";
+    while (!s.empty()) {
+        str += s.top();
+        s.pop();
+    }
+    std::reverse(str.begin(), str.end());
+    return str;
+}
+
+
+std::string convertToPostfix(const std::string& infix) {
+    std::stack<char> opStack;
+    std::string result = "";
+
+    std::cout << "\n--- Infix to Postfix Steps ---\n";
+    std::cout << std::left << std::setw(12) << "Symbol" 
+              << std::setw(20) << "Operator Stack" 
+              << "Postfix Output\n";
+    std::cout << std::string(50, '-') << "\n";
+
+    for (char token : infix) {
+        if (token == ' ') continue;
+
+        if (isOperand(token)) {
+            result.push_back(token);
+        } 
+        else if (token == '(') {
+            opStack.push(token);
+        } 
+        else if (token == ')') {
+            while (!opStack.empty() && opStack.top() != '(') {
+                result.push_back(opStack.top());
+                opStack.pop();
+            }
+            if (!opStack.empty()) opStack.pop(); 
+        } 
+        else if (isOperator(token)) {
+            while (!opStack.empty() && opStack.top() != '(' &&
+                  ((!isRightAssociative(token) && getPrecedence(opStack.top()) >= getPrecedence(token)) ||
+                   (isRightAssociative(token) && getPrecedence(opStack.top()) > getPrecedence(token)))) {
+                result.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.push(token);
+        }
+
+    
+        std::cout << std::left << std::setw(12) << token 
+                  << std::setw(20) << getStackString(opStack) 
+                  << result << "\n";
+    }
+
+
+    while (!opStack.empty()) {
+        result.push_back(opStack.top());
+        opStack.pop();
+        
+        std::cout << std::left << std::setw(12) << "End" 
+                  << std::setw(20) << getStackString(opStack) 
+                  << result << "\n";
+    }
+
+    return result;
+}
+
+
+std::string convertToPrefix(std::string infix) {
+    std::stack<char> opStack;
+    std::string reversedResult = "";
+
+
+    std::reverse(infix.begin(), infix.end());
+
+    std::cout << "\n--- Infix to Prefix Steps (Reversed Processing) ---\n";
+    std::cout << std::left << std::setw(12) << "Symbol" 
+              << std::setw(20) << "Operator Stack" 
+              << "Reversed Output\n";
+    std::cout << std::string(50, '-') << "\n";
+
+    for (char token : infix) {
+        if (token == ' ') continue;
+
+        if (isOperand(token)) {
+            reversedResult.push_back(token);
+        } 
+        else if (token == ')') { 
+            opStack.push(token);
+        } 
+        else if (token == '(') {
+            while (!opStack.empty() && opStack.top() != ')') {
+                reversedResult.push_back(opStack.top());
+                opStack.pop();
+            }
+            if (!opStack.empty()) opStack.pop();
+        } 
+        else if (isOperator(token)) {
+            while (!opStack.empty() && opStack.top() != ')' &&
+                  ((!isRightAssociative(token) && getPrecedence(opStack.top()) > getPrecedence(token)) ||
+                   (isRightAssociative(token) && getPrecedence(opStack.top()) >= getPrecedence(token)))) {
+                reversedResult.push_back(opStack.top());
+                opStack.pop();
+            }
+            opStack.push(token);
+        }
+
+        std::cout << std::left << std::setw(12) << token 
+                  << std::setw(20) << getStackString(opStack) 
+                  << reversedResult << "\n";
+    }
+
+    while (!opStack.empty()) {
+        reversedResult.push_back(opStack.top());
+        opStack.pop();
+
+        std::cout << std::left << std::setw(12) << "End" 
+                  << std::setw(20) << getStackString(opStack) 
+                  << reversedResult << "\n";
+    }
+
+    std::string prefixResult = reversedResult;
+    std::reverse(prefixResult.begin(), prefixResult.end());
+    return prefixResult;
+}
 
 //Standard Array Postfix
 
@@ -27,7 +156,7 @@ std::string postfix (const std::string& infix){
     for (char token : infix){
         if (token == ' ') continue;
         
-        if (isalnum(token)){
+        if (isOperand(token)){
             postfix += token;
         }
         else if (token == '('){
@@ -69,10 +198,10 @@ std::string prefix (const std::string& infix){
     char operatorStack[100];
     std::string reversedInfix = infix;
     std::reverse(reversedInfix.begin(), reversedInfix.end());
-    for (char token : infix){
+    for (char token : reversedInfix){
         if (token == ' ') continue;
         
-        if (isalnum(token)){
+        if (isOperand(token)){
             reversedResult += token;
         }
         else if (token == ')'){
@@ -89,7 +218,7 @@ std::string prefix (const std::string& infix){
             }
         }
         else if (isOperator(token)){
-            while (top > -1 && operatorStack[top] != '(' &&
+            while (top > -1 && operatorStack[top] != ')' &&
             ((!isRightAssociative(token) && getPrecedence(operatorStack[top]) >= getPrecedence(token)) ||
             (isRightAssociative(token) && getPrecedence(operatorStack[top]) > getPrecedence(token)))){
                 reversedResult += operatorStack[top];
@@ -114,28 +243,47 @@ std::string prefix (const std::string& infix){
 
 int main(){
 
-    int n; 
+    int n = 0; 
     std::string expression = "";
     int total = 0;
+    char ans = 'Y';
+
+    while (ans == 'y' || ans == 'Y'){
+    
     std::cout << "Input Infix Notation: ";
+    std::cin.ignore();
     std::getline(std::cin, expression);
-    std::cout <<"What conversion do you want? [1] Prefix Notation, [2] Postfix Notation";
+
+    std::cout <<"What conversion do you want? [1] Prefix Notation, [2] Postfix Notation, [3] Using Stack ";
     std::cin >> n;
 
-    if (n == 1){
-    std::cout << "\n" << std::string(50, '=') << "\n";
-    std::cout << "FINAL RESULTS:\n";
-    std::cout << "Infix:   " << expression << "\n";
-    std::cout << "Prefix:  " << prefix(expression) << "\n";
-    }
+    
+        if (n == 1){
+        std::cout << "\n" << std::string(50, '=') << "\n";
+        std::cout << "FINAL RESULTS:\n";
+        std::cout << "Infix:   " << expression << "\n";
+        std::cout << "Prefix:  " << prefix(expression) << "\n";
+        }
 
-    else if (n == 2){  
-    std::cout << "\n" << std::string(50, '=') << "\n";
-    std::cout << "FINAL RESULTS:\n";
-    std::cout << "Infix:   " << expression << "\n";
-    std::cout << "Postfix:  " << postfix(expression)<< "\n";
-    }
+        else if (n == 2){  
+        std::cout << "\n" << std::string(50, '=') << "\n";
+        std::cout << "FINAL RESULTS:\n";
+        std::cout << "Infix:   " << expression << "\n";
+        std::cout << "Postfix:  " << postfix(expression)<< "\n";
+        }
 
+        else if (n == 3){
+        std::cout << "\n" << std::string(50, '=') << "\n";
+        std::cout << "FINAL RESULTS USING STACK\n";
+        std::cout << "Infix:   " << expression << "\n";
+        std::cout << "Postfix:  " << convertToPostfix(expression)<< "\n";
+        std::cout << "Prefix:  " << convertToPrefix(expression) << "\n";
+        }
+        std::cout << "Do you want to convert again? (Y/N)";
+        std::cin >> ans;
+    
+    }
+    
 
     
     return 0;

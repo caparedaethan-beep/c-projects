@@ -19,6 +19,7 @@ bool isRightAssociative (char op){
 int getPrecedence(char op) {
     if (op == '+' || op == '-') return 1;
     if (op == '*' || op == '/') return 2;
+    if (op == '^') return 3;
     return -1;
 }
 
@@ -31,15 +32,15 @@ std::string getStackString(std::stack<char> s) {
     std::reverse(str.begin(), str.end());
     return str;
 }
-
+//USING POSTFIX STACK
 
 std::string convertToPostfix(const std::string& infix) {
     std::stack<char> opStack;
     std::string result = "";
 
     std::cout << "\n--- Infix to Postfix Steps ---\n";
-    std::cout << std::left << std::setw(12) << "Symbol" 
-              << std::setw(20) << "Operator Stack" 
+    std::cout << std::left << std::setw(12) << "ICP" 
+              << std::setw(20) << "ISP" 
               << "Postfix Output\n";
     std::cout << std::string(50, '-') << "\n";
 
@@ -88,6 +89,7 @@ std::string convertToPostfix(const std::string& infix) {
     return result;
 }
 
+//USING PREFIX STACK
 
 std::string convertToPrefix(std::string infix) {
     std::stack<char> opStack;
@@ -97,8 +99,8 @@ std::string convertToPrefix(std::string infix) {
     std::reverse(infix.begin(), infix.end());
 
     std::cout << "\n--- Infix to Prefix Steps (Reversed Processing) ---\n";
-    std::cout << std::left << std::setw(12) << "Symbol" 
-              << std::setw(20) << "Operator Stack" 
+    std::cout << std::left << std::setw(12) << "ICP" 
+              << std::setw(20) << "Operator ISP" 
               << "Reversed Output\n";
     std::cout << std::string(50, '-') << "\n";
 
@@ -125,7 +127,7 @@ std::string convertToPrefix(std::string infix) {
                 reversedResult.push_back(opStack.top());
                 opStack.pop();
             }
-            opStack.push(token);
+            opStack.push(token);    
         }
 
         std::cout << std::left << std::setw(12) << token 
@@ -219,8 +221,8 @@ std::string prefix (const std::string& infix){
         }
         else if (isOperator(token)){
             while (top > -1 && operatorStack[top] != ')' &&
-            ((!isRightAssociative(token) && getPrecedence(operatorStack[top]) >= getPrecedence(token)) ||
-            (isRightAssociative(token) && getPrecedence(operatorStack[top]) > getPrecedence(token)))){
+            ((!isRightAssociative(token) && getPrecedence(operatorStack[top]) > getPrecedence(token)) ||
+            (isRightAssociative(token) && getPrecedence(operatorStack[top]) >= getPrecedence(token)))){
                 reversedResult += operatorStack[top];
                 top--;
             }
@@ -238,26 +240,23 @@ std::string prefix (const std::string& infix){
 }
 
 
-
-
-
 int main(){
 
     int n = 0; 
-    std::string expression = "";
+    std::string expression = "(a+b)*D+E/( F + ( G + A * D ) ) + c";
     int total = 0;
     char ans = 'Y';
+    
+    std::cout << "Infix Expression = ( a + b ) * D + E / ( F + ( G + A * D ) ) + c";
+    std::getline(std::cin >> std::ws, expression);
 
     while (ans == 'y' || ans == 'Y'){
-    
-    std::cout << "Input Infix Notation: ";
-    std::cin.ignore();
-    std::getline(std::cin, expression);
-
-    std::cout <<"What conversion do you want? [1] Prefix Notation, [2] Postfix Notation, [3] Using Stack ";
+    std::cout <<"Options:\n"
+              <<"[1] Prefix Notation\n"
+              <<"[2] Postfix Notation\n"
+              <<"[3] Using Stack \n";
+    std::cout << "Enter your choice: ";
     std::cin >> n;
-
-    
         if (n == 1){
         std::cout << "\n" << std::string(50, '=') << "\n";
         std::cout << "FINAL RESULTS:\n";
@@ -276,15 +275,11 @@ int main(){
         std::cout << "\n" << std::string(50, '=') << "\n";
         std::cout << "FINAL RESULTS USING STACK\n";
         std::cout << "Infix:   " << expression << "\n";
-        std::cout << "Postfix:  " << convertToPostfix(expression)<< "\n";
+        std::cout << "Postfix:  " << convertToPostfix(expression)<< "\n\n";
         std::cout << "Prefix:  " << convertToPrefix(expression) << "\n";
         }
         std::cout << "Do you want to convert again? (Y/N)";
         std::cin >> ans;
-    
     }
-    
-
-    
     return 0;
 }

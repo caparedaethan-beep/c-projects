@@ -72,7 +72,7 @@ std::string convertToPostfix(const std::string& infix) {
 
     
         std::cout << std::left << std::setw(12) << token 
-                  << std::setw(20) << getStackString(opStack) 
+                  << std::setw(20) << ("-#" + getStackString(opStack)) 
                   << result << "\n";
     }
 
@@ -81,8 +81,8 @@ std::string convertToPostfix(const std::string& infix) {
         result.push_back(opStack.top());
         opStack.pop();
         
-        std::cout << std::left << std::setw(12) << "End" 
-                  << std::setw(20) << getStackString(opStack) 
+        std::cout << std::left << std::setw(12) << "-#" 
+                  << std::setw(20) << ("-#" + getStackString(opStack)) 
                   << result << "\n";
     }
 
@@ -100,7 +100,7 @@ std::string convertToPrefix(std::string infix) {
 
     std::cout << "\n--- Infix to Prefix Steps (Reversed Processing) ---\n";
     std::cout << std::left << std::setw(12) << "ICP" 
-              << std::setw(20) << "Operator ISP" 
+              << std::setw(20) << "ISP" 
               << "Reversed Output\n";
     std::cout << std::string(50, '-') << "\n";
 
@@ -131,7 +131,7 @@ std::string convertToPrefix(std::string infix) {
         }
 
         std::cout << std::left << std::setw(12) << token 
-                  << std::setw(20) << getStackString(opStack) 
+                  << std::setw(20) << ("-#" + getStackString(opStack)) 
                   << reversedResult << "\n";
     }
 
@@ -139,8 +139,8 @@ std::string convertToPrefix(std::string infix) {
         reversedResult.push_back(opStack.top());
         opStack.pop();
 
-        std::cout << std::left << std::setw(12) << "End" 
-                  << std::setw(20) << getStackString(opStack) 
+        std::cout << std::left << std::setw(12) << "-#" 
+                  << std::setw(20) << ("-#" + getStackString(opStack)) 
                   << reversedResult << "\n";
     }
 
@@ -243,12 +243,11 @@ std::string prefix (const std::string& infix){
 int main(){
 
     int n = 0; 
-    std::string expression = "(a+b)*D+E/( F + ( G + A * D ) ) + c";
+    std::string expression = "(a+b)*D+E/(F+(G+A*D))+c";
     int total = 0;
     char ans = 'Y';
     
-    std::cout << "Infix Expression = ( a + b ) * D + E / ( F + ( G + A * D ) ) + c";
-    std::getline(std::cin >> std::ws, expression);
+    std::cout << "Infix Expression = (a+b)*D+E/(F+(G+A*D))+c\n";
 
     while (ans == 'y' || ans == 'Y'){
     std::cout <<"Options:\n"
@@ -278,7 +277,8 @@ int main(){
         std::cout << "Postfix:  " << convertToPostfix(expression)<< "\n\n";
         std::cout << "Prefix:  " << convertToPrefix(expression) << "\n";
         }
-        std::cout << "Do you want to convert again? (Y/N)";
+
+        std::cout << "Do you want to pick a different option? (Y/N)";
         std::cin >> ans;
     }
     return 0;

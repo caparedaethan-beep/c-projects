@@ -61,7 +61,7 @@ std::string convertToPostfix(const std::string& infix) {
                 result.push_back(opStack.top());
                 opStack.pop();
             }
-            if (!opStack.empty()) opStack.pop(); 
+            if (!opStack.empty()) opStack.pop(); // Pop '('
         } 
         else if (isOperator(token)) {
             while (!opStack.empty() && opStack.top() != '(' &&
@@ -154,39 +154,18 @@ std::string convertToPrefix(std::string infix) {
 
 int main() {
     std::string expression;
-    int n;
 
     std::cout << "Enter Infix Expression: ";
     std::getline(std::cin, expression);
 
-    std::cout << "What conversion do you want? [1] Prefix Notation, [2] Postfix Notation, Using Stack Tracing[3]";
-    std::cin >> n;
-
-    if (n == 1){
-    std::string prefix = convertToPrefix(expression);
-    std::cout << "\n" << std::string(50, '=') << "\n";
-    std::cout << "FINAL RESULTS:\n";
-    std::cout << "Infix:   " << expression << "\n";
-    std::cout << "Prefix:  " << prefix << "\n";
-    }
-    else if (n == 2){
     std::string postfix = convertToPostfix(expression);
+    std::string prefix = convertToPrefix(expression);
+
     std::cout << "\n" << std::string(50, '=') << "\n";
     std::cout << "FINAL RESULTS:\n";
     std::cout << "Infix:   " << expression << "\n";
     std::cout << "Postfix: " << postfix << "\n";
-    }
-    else if (n == 3){
-    std::string postfix = convertToPostfix(expression);
-    std::string prefix = convertToPrefix(expression);
-    std::cout << "\n" << std::string(50, '=') << "\n";
-    std::cout << "FINAL RESULTS:\n";
-    std::cout << "Infix:   " << expression << "\n";
     std::cout << "Prefix:  " << prefix << "\n";
-    std::cout << "Postfix:  " << postfix << "\n";
-    }
-    
 
-    
     return 0;
 }

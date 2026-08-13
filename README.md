@@ -1,4 +1,4 @@
-# C & C++ Laboratory Projects
+# C++ Laboratory Projects
 
 Welcome to **c-projects**! This repository serves as a practical space for exploring, practicing, and mastering basic-to-intermediate concepts in C and C++ through laboratory exercises and algorithmic implementations.
 

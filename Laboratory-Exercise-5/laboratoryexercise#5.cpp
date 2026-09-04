@@ -66,11 +66,6 @@ int main(){
     std::cout << "Input 15 character or below (If you want to make it early use '#' at the last to ensure it breaks): ";
 
     while (count < 15 && (std::cin >> node)) {
-        //This ensures that there will be no other inputs except characters
-        if (!std::isalpha(node)){
-            std::cout << "Your input is not a character"; 
-            return 1;
-        }
         //This ensures that when a user input that symbol it automatically breaks in order to input below 15 characters
         if (node == '#') {
             break; 

@@ -1,12 +1,3 @@
-/*
-Instruction
-Enter up to 15 unique values (letters or numbers) to build a binary tree. After you provide the tree structure / input sequence, the program will compute and display the three traversal orders:
-
-    Pre-order Traversal → Root → Left → Right
-    In-order Traversal → Left → Root → Right
-    Post-order Traversal → Left → Right → Root
-*/
-
 #include <iostream>
 #include <cctype>
 
@@ -16,7 +7,7 @@ struct Node {
     Node* left;
     Node* right;
 
-    //Constructor
+    //Constructor (In order to add a new node which is safer)
     Node (char value){
         data = value;
         left = nullptr;
@@ -39,16 +30,30 @@ void insertNode (Node*& node, char value){
      }
 }
 
+void inOrder (Node* node){
+    if (node == nullptr) return; //This will return back to the main if there is no node in the tree.
+    //In-order Traversal → Left → Root → Right
+    inOrder (node -> left);
+    std:: cout << node -> data;
+    inOrder (node -> right);
+}
 
 
+void preOrder (Node* node){
+    if (node == nullptr) return;
+    //Pre-order Traversal → Root → Left → Right
+    std:: cout << node -> data; //This will print all of the nodes of the tree
+    preOrder (node -> left);
+    preOrder (node -> right);
+}
 
-//void inOrder
-
-// void preOrder (Node*& node){
-
-// }
-
-//void postOrder
+void postOrder (Node* node){
+    if (node == nullptr) return;
+    //Post-order Traversal → Left → Right → Root
+    inOrder (node -> left);
+    inOrder (node -> right);
+    std::cout << node -> data;
+}
 
 int main(){
     //This will make the root to be null as there weren't any node to have at the moment
